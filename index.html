@@ -1631,6 +1631,16 @@ function exitFullscreen(){
   } catch(e){}
 }
 function toggleFullscreen(){ if(fsElement()) exitFullscreen(); else enterFullscreen(); }
+// iPadOS shows an exit-fullscreen prompt on edge swipes, which clashes with slashing toward the edges.
+// On iPad, fullscreen is opt-in via the buttons instead of automatic on start.
+// (iPadOS 13+ Safari reports itself as "Macintosh", so we also check for touch support.)
+function isIPadOS(){
+  try {
+    const ua = navigator.userAgent || '';
+    if(/iPad/.test(ua)) return true;
+    return /Macintosh/.test(ua) && navigator.maxTouchPoints > 1;
+  } catch(e){ return false; }
+}
 function updFsButtons(){
   const on = !!fsElement();
   const label = on ? '全画面 OFF' : '全画面 ON';
@@ -1739,7 +1749,7 @@ function startGame(){
   joy.active=false; joy.id=null; slashId=null;
   pauseBtn.textContent = '❚❚';
   pauseBtn.classList.toggle('show', isTouch);
-  if(isTouch && !fsElement()) enterFullscreen();
+  if(isTouch && !fsElement() && !isIPadOS()) enterFullscreen();
   updFsButtons();
 }
 document.getElementById('startBtn').addEventListener('click', startGame);
