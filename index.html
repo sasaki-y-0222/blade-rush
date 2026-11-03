@@ -89,6 +89,9 @@ body{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",system-ui,-apple-system
 body.touch .pc-only{display:none}
 body.touch .howto .touch-only{display:block}
 body.touch .grow.touch-only{display:flex}
+body.touch span.touch-only{display:inline}
+span.touch-only{display:none !important}
+body.touch span.touch-only{display:inline !important}
 body.touch .hud-score .val{font-size:30px}
 body.touch .hud-score .hud-goal{margin-top:2px}
 body.touch .hud-lives{top:calc(96px + env(safe-area-inset-top));bottom:auto}
@@ -154,6 +157,15 @@ body.touch .btn{padding:16px 36px}
 #newbest{font-size:11px;letter-spacing:.5em;color:var(--gold);margin-bottom:30px;height:14px;
   text-shadow:0 0 12px rgba(255,210,77,.6)}
 .retry-hint{font-size:10px;letter-spacing:.35em;color:var(--dim);margin-top:18px}
+
+.menu-row{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin:4px 0 26px}
+.menu-row .btn{padding:14px 30px;font-size:12px}
+.menu-row .btn.ghost{margin-top:0}
+#fsTitleBtn{position:fixed;top:calc(16px + env(safe-area-inset-top));right:calc(18px + env(safe-area-inset-right));z-index:25;
+  display:none;font-family:inherit;font-size:10px;letter-spacing:.3em;color:var(--dim);border:1px solid rgba(255,255,255,.14);
+  background:rgba(10,10,20,.6);padding:9px 14px;border-radius:3px;cursor:pointer;pointer-events:auto}
+#fsTitleBtn.show{display:block}
+#fsTitleBtn:hover{color:var(--bone);border-color:rgba(255,255,255,.35)}
 
 /* ---------- Guide ---------- */
 .scroll-screen{justify-content:flex-start;overflow-y:auto;padding:48px 20px 60px}
@@ -228,6 +240,7 @@ body.touch .btn{padding:16px 36px}
 <button id="superBtn">奥義 無双</button>
 <button id="mute">SOUND ON</button>
 <button id="pauseBtn" aria-label="pause">❚❚</button>
+<button id="fsTitleBtn">全画面 OFF</button>
 
 <div class="screen" id="title-screen">
   <div class="kanji-logo">斬</div>
@@ -263,6 +276,7 @@ body.touch .btn{padding:16px 36px}
   <div id="newbest"></div>
   <div class="choice">
     <button class="btn" id="retryBtn">再戦</button>
+    <button class="btn ghost" style="margin-top:0" id="titleBtn3">タイトルへ</button>
     <button class="btn ghost" style="margin-top:0" id="quitBtn2">ゲームを終了</button>
   </div>
   <div class="retry-hint">R キーでも再戦できます</div>
@@ -282,6 +296,7 @@ body.touch .btn{padding:16px 36px}
   <div class="choice">
     <button class="btn" id="contBtn">無限スコアアタック続行</button>
     <button class="btn ghost" style="margin-top:0" id="endBtn">リザルトを見る</button>
+    <button class="btn ghost" style="margin-top:0" id="titleBtn2">タイトルへ</button>
     <button class="btn ghost" style="margin-top:0" id="quitBtn1">ゲームを終了</button>
   </div>
 </div>
@@ -295,7 +310,12 @@ body.touch .btn{padding:16px 36px}
 
 <div class="screen off scroll-screen" id="pause-screen">
   <div style="font-size:54px;font-weight:800;color:var(--dim);margin-bottom:4px">静</div>
-  <div class="title-sub">PAUSED — ESC で再開</div>
+  <div class="title-sub"><span class="pc-only">PAUSED — ESC で再開</span><span class="touch-only" style="display:inline">PAUSED</span></div>
+  <div class="menu-row">
+    <button class="btn" id="resumeBtn">再開</button>
+    <button class="btn ghost" id="titleBtn1">タイトルへ</button>
+    <button class="btn ghost" id="fsBtn">全画面 OFF</button>
+  </div>
   <div class="guide" id="guidePause"></div>
 </div>
 
@@ -1591,6 +1611,58 @@ window.addEventListener('keydown', e=>{
 });
 window.addEventListener('keyup', e=>keys.delete(e.key.toLowerCase()));
 
+/* ---------- fullscreen (with webkit fallbacks for iPad/Safari) ---------- */
+function fsElement(){ return document.fullscreenElement || document.webkitFullscreenElement || null; }
+function fsSupported(){
+  const de = document.documentElement;
+  return !!(de && (de.requestFullscreen || de.webkitRequestFullscreen));
+}
+function enterFullscreen(){
+  const de = document.documentElement;
+  try {
+    if(de.requestFullscreen){ const p = de.requestFullscreen(); if(p && p.catch) p.catch(()=>{}); }
+    else if(de.webkitRequestFullscreen) de.webkitRequestFullscreen();
+  } catch(e){}
+}
+function exitFullscreen(){
+  try {
+    if(document.exitFullscreen){ const p = document.exitFullscreen(); if(p && p.catch) p.catch(()=>{}); }
+    else if(document.webkitExitFullscreen) document.webkitExitFullscreen();
+  } catch(e){}
+}
+function toggleFullscreen(){ if(fsElement()) exitFullscreen(); else enterFullscreen(); }
+function updFsButtons(){
+  const on = !!fsElement();
+  const label = on ? '全画面 OFF' : '全画面 ON';
+  fsBtn.textContent = label; fsTitleBtn.textContent = label;
+  const show = fsSupported();
+  fsBtn.style.display = show ? '' : 'none';
+  fsTitleBtn.classList.toggle('show', show && state===ST.TITLE);
+}
+const fsBtn = document.getElementById('fsBtn');
+const fsTitleBtn = document.getElementById('fsTitleBtn');
+fsBtn.addEventListener('click', toggleFullscreen);
+fsTitleBtn.addEventListener('click', toggleFullscreen);
+document.addEventListener('fullscreenchange', updFsButtons);
+document.addEventListener('webkitfullscreenchange', updFsButtons);
+
+/* ---------- back to title ---------- */
+function goTitle(){
+  cancelAim(); joy.active=false; joy.id=null; slashId=null; keys.clear();
+  dash = null; superMark = null; confetti = []; fxBursts = [];
+  state = ST.TITLE;
+  ['over-screen','pause-screen','help-screen','clear-screen','end-screen'].forEach(id=>
+    document.getElementById(id).classList.add('off'));
+  document.getElementById('title-screen').classList.remove('off');
+  hudEl.classList.remove('on');
+  superBtn.classList.remove('show');
+  pauseBtn.classList.remove('show');
+  reset();
+  updFsButtons();
+}
+document.getElementById('resumeBtn').addEventListener('click', ()=>{ if(state===ST.PAUSE) togglePause(); });
+['titleBtn1','titleBtn2','titleBtn3'].forEach(id=>document.getElementById(id).addEventListener('click', goTitle));
+
 function togglePause(){
   if(state===ST.PLAY){
     cancelAim(); joy.active=false; joy.id=null; slashId=null;
@@ -1628,7 +1700,7 @@ const GUIDE_HTML = `
 <div class="grow touch-only"><div class="eicon" style="font-size:14px;letter-spacing:0">移動</div><div><b>移動スティック</b>縦持ちなら画面右下、横持ちなら画面左下あたりに指を置いて動かすとその方向へ移動（置いた位置が中心になる）。もう一方の指で斬撃。斬撃だけでも遊べる。横画面にも対応、回転してもそのまま続行できる。</div></div>
 <div class="grow pc-only"><div class="eicon" style="font-size:18px">〜</div><div><b>ドラッグ（主力）</b>描いた軌跡どおりに曲線スラッシュ。描いている間は時間が大きく遅くなるので、敵の群れを一筆で巻き込む軌道をじっくり描ける。長さに応じてストックを消費（先端のひし形が消費数）。キルで即回復するので、当て続ける限り描き続けられる。</div></div>
 <div class="grow pc-only"><div class="eicon" style="font-size:18px">⊕</div><div><b>クリック</b>カーソル方向へ直線斬撃ダッシュ。距離無制限・無敵。緊急回避や単体への差し込みに。</div></div>
-<div class="grow"><div class="eicon" style="font-size:15px;letter-spacing:0">奥義</div><div><b>無双</b>ゲージ満タンで <span class="kbd">SPACE</span>・右クリック・画面右下の奥義ボタン。画面の全敵を自動マーキングし、自動連続スラッシュで<b>装甲を無視して全滅</b>させる。ゲージはキル・装甲ヒット・弾斬り・<b>被弾</b>で溜まる。</div></div>
+<div class="grow"><div class="eicon" style="font-size:15px;letter-spacing:0">奥義</div><div><b>無双</b>ゲージ満タンで<span class="pc-only"> <span class="kbd">SPACE</span>・右クリック・</span><span class="touch-only" style="display:inline">画面の</span>奥義ボタン。画面の全敵を自動マーキングし、自動連続スラッシュで<b>装甲を無視して全滅</b>させる。ゲージはキル・装甲ヒット・弾斬り・<b>被弾</b>で溜まる。</div></div>
 <div class="grow pc-only"><div class="eicon" style="font-size:14px;letter-spacing:0">移動</div><div><span class="kbd">W</span><span class="kbd">A</span><span class="kbd">S</span><span class="kbd">D</span> または矢印キーで移動。<span class="kbd">Esc</span> ポーズ／<span class="kbd">R</span> 再戦（ゲームオーバー時）。右上の ❚❚ でもポーズ。</div></div>
 <h3>目標</h3>
 <div class="grow"><div class="eicon" style="font-size:15px;color:var(--gold)">十万</div><div><b>100,000点</b>を目指せ。達成後は「ここで終える」か「無限スコアアタック続行」を選べる。コンボ倍率を保ったまま奥義を重ねるのが最短ルート。</div></div>
@@ -1667,9 +1739,8 @@ function startGame(){
   joy.active=false; joy.id=null; slashId=null;
   pauseBtn.textContent = '❚❚';
   pauseBtn.classList.toggle('show', isTouch);
-  if(isTouch){
-    try { const de=document.documentElement; if(de && de.requestFullscreen && !document.fullscreenElement) de.requestFullscreen().catch(()=>{}); } catch(e){}
-  }
+  if(isTouch && !fsElement()) enterFullscreen();
+  updFsButtons();
 }
 document.getElementById('startBtn').addEventListener('click', startGame);
 document.getElementById('retryBtn').addEventListener('click', startGame);
@@ -1700,6 +1771,7 @@ muteBtn.addEventListener('click', ()=>{
 });
 
 reset();
+updFsButtons();
 </script>
 </body>
 </html>
