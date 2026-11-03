@@ -2,7 +2,11 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#07070f">
 <title>斬 — BLADE RUSH</title>
 <style>
 :root{
@@ -15,9 +19,9 @@
   --dim:#5a5878;
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{width:100%;height:100%;overflow:hidden;background:var(--ink)}
-body{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",system-ui,-apple-system,sans-serif;color:var(--bone);user-select:none;-webkit-user-select:none}
-#cv{position:fixed;inset:0;display:block;cursor:none;touch-action:none}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--ink);overscroll-behavior:none}
+body{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",system-ui,-apple-system,sans-serif;color:var(--bone);user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+#cv{position:fixed;inset:0;width:100%;height:100%;display:block;cursor:none;touch-action:none}
 .scan{position:fixed;inset:0;pointer-events:none;z-index:5;
   background:repeating-linear-gradient(0deg,rgba(255,255,255,.018) 0 1px,transparent 1px 3px);}
 .vig{position:fixed;inset:0;pointer-events:none;z-index:5;
@@ -30,13 +34,13 @@ body{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",system-ui,-apple-system
 /* ---------- HUD ---------- */
 #hud{position:fixed;inset:0;pointer-events:none;z-index:10;opacity:0;transition:opacity .4s}
 #hud.on{opacity:1}
-.hud-score{position:absolute;top:22px;left:28px}
+.hud-score{position:absolute;top:calc(22px + env(safe-area-inset-top));left:calc(28px + env(safe-area-inset-left))}
 .hud-score .lbl{font-size:10px;letter-spacing:.5em;color:var(--dim)}
 .hud-score .val{font-size:42px;font-weight:800;letter-spacing:.04em;color:var(--bone);
   font-variant-numeric:tabular-nums;line-height:1.05;text-shadow:0 0 18px rgba(82,242,255,.35)}
 .hud-score .val.pop{animation:pop .18s ease-out}
 @keyframes pop{0%{transform:scale(1.18)}100%{transform:scale(1)}}
-.hud-combo{position:absolute;top:22px;right:28px;text-align:right;opacity:0;transition:opacity .2s}
+.hud-combo{position:absolute;top:calc(22px + env(safe-area-inset-top));right:calc(28px + env(safe-area-inset-right));text-align:right;opacity:0;transition:opacity .2s}
 .hud-combo.on{opacity:1}
 .hud-combo .num{font-size:46px;font-weight:800;color:var(--gold);line-height:1;
   font-variant-numeric:tabular-nums;text-shadow:0 0 20px rgba(255,210,77,.5)}
@@ -45,29 +49,29 @@ body{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",system-ui,-apple-system
 .hud-combo .mult{font-size:14px;font-weight:700;color:var(--gold);letter-spacing:.1em}
 .combo-bar{width:120px;height:3px;background:rgba(255,255,255,.08);margin:6px 0 0 auto;border-radius:2px;overflow:hidden}
 .combo-bar i{display:block;height:100%;background:var(--gold);width:100%;transform-origin:right;border-radius:2px}
-.hud-stocks{position:absolute;bottom:26px;left:28px;display:flex;gap:10px;align-items:center}
+.hud-stocks{position:absolute;bottom:calc(26px + env(safe-area-inset-bottom));left:calc(28px + env(safe-area-inset-left));display:flex;gap:10px;align-items:center}
 .stock{width:16px;height:16px;transform:rotate(45deg);border:1.5px solid rgba(82,242,255,.45);transition:all .15s}
 .stock.f{background:var(--blade);border-color:var(--blade);box-shadow:0 0 14px rgba(82,242,255,.8)}
 .hud-stocks .slbl,.hud-lives .slbl{font-size:9px;letter-spacing:.4em;color:var(--dim);margin-left:8px}
-.hud-lives{position:absolute;bottom:62px;left:28px;display:flex;gap:9px;align-items:center}
+.hud-lives{position:absolute;bottom:calc(62px + env(safe-area-inset-bottom));left:calc(28px + env(safe-area-inset-left));display:flex;gap:9px;align-items:center}
 .life{font-size:17px;line-height:1;color:var(--foe);text-shadow:0 0 10px rgba(255,45,111,.7);transition:all .2s}
 .life.lost{color:rgba(255,255,255,.10);text-shadow:none;transform:scale(.8)}
 #hint{position:absolute;bottom:100px;left:50%;transform:translateX(-50%);
   font-size:12px;letter-spacing:.3em;color:var(--dim);transition:opacity .8s;text-align:center;line-height:2}
-#mute{position:fixed;bottom:22px;right:24px;z-index:30;pointer-events:auto;cursor:pointer;
+#mute{position:fixed;bottom:calc(22px + env(safe-area-inset-bottom));right:calc(24px + env(safe-area-inset-right));z-index:30;pointer-events:auto;cursor:pointer;
   font-size:10px;letter-spacing:.3em;color:var(--dim);border:1px solid rgba(255,255,255,.12);
   background:rgba(10,10,20,.6);padding:8px 14px;border-radius:3px;font-family:inherit}
 #mute:hover{color:var(--bone);border-color:rgba(255,255,255,.3)}
 
 .hud-goal{font-size:9px;letter-spacing:.32em;color:var(--dim);margin-top:5px}
-.hud-super{position:absolute;bottom:26px;left:50%;transform:translateX(-50%);width:250px;text-align:center}
+.hud-super{position:absolute;bottom:calc(26px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);width:250px;text-align:center}
 .sbar{height:5px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden}
 .sbar i{display:block;height:100%;width:0%;background:linear-gradient(90deg,#8a6cff,var(--gold));border-radius:3px;transition:width .15s}
 .hud-super .slbl2{font-size:9px;letter-spacing:.42em;color:var(--dim);margin-top:6px}
 .hud-super.full .sbar i{box-shadow:0 0 16px rgba(255,210,77,.95)}
 .hud-super.full .slbl2{color:var(--gold);text-shadow:0 0 10px rgba(255,210,77,.6);animation:gpulse 1s ease-in-out infinite}
 @keyframes gpulse{0%,100%{opacity:1}50%{opacity:.4}}
-#superBtn{position:fixed;bottom:64px;right:24px;z-index:30;pointer-events:auto;cursor:pointer;display:none;
+#superBtn{position:fixed;bottom:calc(64px + env(safe-area-inset-bottom));right:calc(24px + env(safe-area-inset-right));z-index:30;pointer-events:auto;cursor:pointer;display:none;
   font-family:inherit;font-size:12px;letter-spacing:.3em;text-indent:.3em;color:var(--ink);background:var(--gold);
   border:none;padding:14px 22px;border-radius:3px;font-weight:800;box-shadow:0 0 24px rgba(255,210,77,.6);
   animation:gpulse 1.2s ease-in-out infinite}
@@ -75,6 +79,42 @@ body{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",system-ui,-apple-system
 .ovr-title.win{color:var(--gold);text-shadow:0 0 50px rgba(255,210,77,.55)}
 .clear-sub{font-size:12px;letter-spacing:.5em;color:var(--gold);margin-bottom:34px;text-indent:.5em}
 .choice{display:flex;gap:18px;flex-wrap:wrap;justify-content:center}
+
+#pauseBtn{position:fixed;top:calc(16px + env(safe-area-inset-top));right:calc(18px + env(safe-area-inset-right));z-index:30;
+  display:none;width:40px;height:40px;border-radius:4px;border:1px solid rgba(255,255,255,.18);
+  background:rgba(10,10,20,.6);color:var(--bone);font-size:14px;letter-spacing:.1em;font-family:inherit;cursor:pointer;
+  pointer-events:auto;align-items:center;justify-content:center}
+#pauseBtn.show{display:flex}
+.touch-only{display:none}
+body.touch .pc-only{display:none}
+body.touch .howto .touch-only{display:block}
+body.touch .grow.touch-only{display:flex}
+body.touch .hud-score .val{font-size:30px}
+body.touch .hud-score .hud-goal{margin-top:2px}
+body.touch .hud-lives{top:calc(96px + env(safe-area-inset-top));bottom:auto}
+body.touch .hud-stocks{top:calc(122px + env(safe-area-inset-top));bottom:auto}
+body.touch .hud-combo{top:calc(64px + env(safe-area-inset-top))}
+body.touch .hud-combo .num{font-size:34px}
+body.touch .hud-super{width:160px;bottom:calc(22px + env(safe-area-inset-bottom))}
+body.touch #superBtn{bottom:calc(60px + env(safe-area-inset-bottom));padding:16px 20px}
+body.touch.portrait #superBtn{right:auto;left:calc(24px + env(safe-area-inset-left))}
+body.touch.portrait .hud-super{left:calc(24px + env(safe-area-inset-left));right:auto;transform:none;width:150px;text-align:left;bottom:calc(26px + env(safe-area-inset-bottom))}
+body.touch.portrait #superBtn{bottom:calc(66px + env(safe-area-inset-bottom))}
+body.touch.portrait #hint{bottom:calc(240px + env(safe-area-inset-bottom))}
+body.touch.landscape .hud-stocks{top:auto;bottom:calc(26px + env(safe-area-inset-bottom));left:auto;right:calc(28px + env(safe-area-inset-right));flex-direction:row-reverse}
+body.touch.landscape .hud-stocks .slbl{margin:0 8px 0 0}
+body.touch.landscape .hud-lives{top:auto;bottom:calc(62px + env(safe-area-inset-bottom));left:auto;right:calc(28px + env(safe-area-inset-right));flex-direction:row-reverse}
+body.touch.landscape .hud-lives .slbl{margin:0 8px 0 0}
+body.touch.landscape #superBtn{bottom:calc(100px + env(safe-area-inset-bottom))}
+body.touch.landscape .hud-super{bottom:calc(22px + env(safe-area-inset-bottom))}
+body.touch.landscape #hint{bottom:calc(60px + env(safe-area-inset-bottom))}
+body.touch #hint{bottom:calc(215px + env(safe-area-inset-bottom));font-size:11px;letter-spacing:.2em;width:92%}
+body.touch #mute{display:none}
+body.touch .kanji-logo{font-size:min(30vw,130px)}
+body.touch .howto{gap:14px 22px}
+body.touch .retry-hint{display:none}
+body.touch .btn{padding:16px 36px}
+.screen{padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right)}
 
 /* ---------- Screens ---------- */
 .screen{position:fixed;inset:0;z-index:20;display:flex;flex-direction:column;
@@ -131,7 +171,7 @@ body{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",system-ui,-apple-system
 .tip{margin:9px 0;padding-left:18px;position:relative;font-size:12.5px;color:#c8cbe4;line-height:1.85}
 .tip::before{content:"斬";position:absolute;left:0;top:1px;font-size:10px;color:var(--gold)}
 .gclose{text-align:center;margin-top:34px}
-#fxcv{position:fixed;inset:0;z-index:22;pointer-events:none}
+#fxcv{position:fixed;inset:0;width:100%;height:100%;z-index:22;pointer-events:none}
 #clear-screen .ovr-title{opacity:0}
 #clear-screen.celebrate .ovr-title{animation:riseIn .8s cubic-bezier(.18,1.3,.3,1) .15s forwards}
 #clear-screen .congrats{font-size:clamp(20px,5vw,34px);font-weight:800;letter-spacing:.3em;text-indent:.3em;
@@ -187,16 +227,21 @@ body{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",system-ui,-apple-system
 </div>
 <button id="superBtn">奥義 無双</button>
 <button id="mute">SOUND ON</button>
+<button id="pauseBtn" aria-label="pause">❚❚</button>
 
 <div class="screen" id="title-screen">
   <div class="kanji-logo">斬</div>
   <div class="title-en">BLADE RUSH</div>
   <div class="title-sub">ネオン一閃アクション</div>
   <div class="howto">
-    <div><b>ドラッグ</b>軌跡どおりの曲線斬り<br>描く間は時が遅れる・これが主力</div>
-    <div><b>クリック</b>直線斬撃ダッシュ<br>距離無制限・無敵</div>
-    <div><b>奥義</b>ゲージ満タンでSPACE<br>全敵自動連続スラッシュ</div>
-    <div><b>目標</b>十万点を目指せ<br>WASD・矢印キーで移動</div>
+    <div class="pc-only"><b>ドラッグ</b>軌跡どおりの曲線斬り<br>描く間は時が遅れる・これが主力</div>
+    <div class="pc-only"><b>クリック</b>直線斬撃ダッシュ<br>距離無制限・無敵</div>
+    <div class="pc-only"><b>奥義</b>ゲージ満タンでSPACE<br>全敵自動連続スラッシュ</div>
+    <div class="pc-only"><b>目標</b>十万点を目指せ<br>WASD・矢印キーで移動</div>
+    <div class="touch-only"><b>なぞる</b>軌跡どおりの曲線斬り<br>描く間は時が遅れる・主力</div>
+    <div class="touch-only"><b>タップ</b>直線斬撃ダッシュ<br>距離無制限・無敵</div>
+    <div class="touch-only"><b>スティック</b>縦持ちは右下・横持ちは左下<br>もう一方の指で斬る</div>
+    <div class="touch-only"><b>奥義</b>ゲージ満タンで<br>右下のボタン</div>
   </div>
   <button class="btn" id="startBtn">開始</button>
   <button class="btn ghost" id="helpBtn">遊び方・敵図鑑</button>
@@ -273,8 +318,39 @@ function resize(){
   ctx.setTransform(DPR,0,0,DPR,0,0);
   fxcv.width = W*DPR; fxcv.height = H*DPR;
   fctx.setTransform(DPR,0,0,DPR,0,0);
+  scrScale = Math.min(1, Math.max(0.55, Math.sqrt((W*H)/(1280*800))));   // 1 desktop … 0.55 phone
+  stampPx = Math.min(150, W*0.36);
 }
-window.addEventListener('resize', resize); resize();
+let scrScale = 1, stampPx = 150;
+let prevW = 0, prevH = 0;
+function isPortrait(){ return H > W; }
+function applyOrientationClass(){
+  if(!document.body) return;
+  document.body.classList.toggle('portrait', isPortrait());
+  document.body.classList.toggle('landscape', !isPortrait());
+}
+function onViewportChange(){
+  resize();
+  applyOrientationClass();
+  if(typeof hintEl !== 'undefined' && isTouch) setTouchHint();
+  // keep everything on screen after a rotation: scale positions by the viewport change
+  if(prevW && prevH && (prevW!==W || prevH!==H) && typeof player !== 'undefined' && player){
+    const sx = W/prevW, sy = H/prevH;
+    const mv = o=>{ o.x*=sx; o.y*=sy; };
+    mv(player);
+    for(const e of enemies) mv(e);
+    for(const b of bullets) mv(b);
+    for(const p of pickups) mv(p);
+    for(const q of spawnQ) mv(q);
+    player.x = clamp(player.x, 18, W-18); player.y = clamp(player.y, 18, H-18);
+    if(dash || superMark){ dash = null; superMark = null; cancelAim(); }
+    joy.active=false; joy.id=null; slashId=null;
+  }
+  prevW = W; prevH = H;
+}
+resize(); prevW = W; prevH = H;
+window.addEventListener('resize', onViewportChange);
+window.addEventListener('orientationchange', ()=>setTimeout(onViewportChange, 60));
 
 /* ---------- utils ---------- */
 const TAU = Math.PI*2;
@@ -391,7 +467,11 @@ let superG=0, superMark=null, cleared=false, pendingClear=false;
 let pickups=[], pickupT=20, nextHealAt=25000;
 const keys = new Set();
 let mouse = { x: W/2, y: H/2 };
-const MAX_STOCKS = 3, MAX_LIVES = 3, BLADE_W = 30;
+let isTouch = false;
+const joy = { active:false, id:null, bx:0, by:0, kx:0, ky:0, R:48 };
+let slashId = null;
+const MAX_STOCKS = 3, MAX_LIVES = 3;
+let BLADE_W = 30;
 const DASH_SPEED = 2700, DRAG_BUDGET = 700, MOVE_SPD = 255;
 const GOAL = 100000, SUPER_MAX = 100, SUPER_BLADE = 55, SUPER_SPEED = 3600;
 const HEAL_STEP = 25000;
@@ -463,7 +543,7 @@ function updSuper(){
   superBar.style.width = (superG/SUPER_MAX*100)+'%';
   const full = superG >= SUPER_MAX;
   superBox.classList.toggle('full', full);
-  superLbl.textContent = full ? '奥義 — SPACE / 右クリック' : '奥義ゲージ';
+  superLbl.textContent = full ? (isTouch ? '奥義 — 発動可能' : '奥義 — SPACE / 右クリック') : '奥義ゲージ';
   superBtn.classList.toggle('show', full && state===ST.PLAY);
 }
 
@@ -498,7 +578,7 @@ function spawnEnemy(q){
   const base = ETYPE[q.type];
   enemies.push({
     type:q.type, x:q.x, y:q.y, r:base.r, hp:base.hp,
-    spd:base.spd*rnd(0.9,1.15)*(elapsed<12?0.85:1), col:base.col, pts:base.pts,
+    spd:base.spd*rnd(0.9,1.15)*(elapsed<12?0.85:1)*lerp(0.8,1,(scrScale-0.55)/0.45), col:base.col, pts:base.pts,
     ang:rnd(0,TAU), spin:rnd(-2,2), t:0,
     vx:0, vy:0, fireT:rnd(1.0,2.0), lungeT:rnd(0.6,1.4), lunging:0, charging:0,
   });
@@ -512,7 +592,8 @@ function startSlash(rawPts, opts){
   const pts=[{x:player.x, y:player.y}];
   for(const p of rawPts){
     const lp = pts[pts.length-1];
-    const nx = clamp(p.x, 16, W-16), ny = clamp(p.y, 16, H-16);
+    const m = isTouch ? -40 : 16;   // on touch let strokes run slightly past the edge to catch edge-spawned enemies
+    const nx = clamp(p.x, m, W-m), ny = clamp(p.y, m, H-m);
     if(Math.hypot(nx-lp.x, ny-lp.y) > 4) pts.push({x:nx, y:ny});
   }
   if(pts.length < 2) return false;
@@ -834,6 +915,7 @@ function quitGame(){
     document.getElementById(id).classList.add('off'));
   hudEl.classList.remove('on');
   superBtn.classList.remove('show');
+  pauseBtn.classList.remove('show');
   document.getElementById('eScore').textContent =
     score>0 ? 'SCORE '+score.toLocaleString()+'　／　BEST '+best.toLocaleString() : 'BEST '+best.toLocaleString();
   document.getElementById('end-screen').classList.remove('off');
@@ -859,6 +941,7 @@ function doClear(){
   cs.classList.remove('celebrate'); void cs.offsetWidth; cs.classList.add('celebrate');
   hudEl.classList.remove('on');
   updSuper();
+  pauseBtn.classList.remove('show');
   if(score>best){ best=score; saveBest(); }
   celebrate();
   sFanfare();
@@ -894,6 +977,7 @@ function gameOver(){
   document.getElementById('fCombo').textContent = maxCombo;
   document.getElementById('newbest').textContent = nb ? '— 自己ベスト更新 —' : '';
   updSuper();
+  pauseBtn.classList.remove('show');
   setTimeout(()=>{ if(state===ST.OVER){
     document.getElementById('over-screen').classList.remove('off');
     hudEl.classList.remove('on');
@@ -983,6 +1067,7 @@ function update(dtReal){
         slowT = Math.max(slowT, 0.5);
       } else if(dash.killCount >= 3){ slowT = 0.45; stamp('斬'); }
       dash = null;
+      player.x = clamp(player.x, 18, W-18); player.y = clamp(player.y, 18, H-18);   // strokes may end past the edge on touch
     }
   } else {
     /* --- WASD / arrow movement --- */
@@ -990,12 +1075,16 @@ function update(dtReal){
     let iy = (keys.has('s')||keys.has('arrowdown')?1:0) - (keys.has('w')||keys.has('arrowup')?1:0);
     let tx=0, ty=0;
     if(ix||iy){ const l=Math.hypot(ix,iy); tx=ix/l*MOVE_SPD; ty=iy/l*MOVE_SPD; }
-    const f = 1-Math.exp(-dt*7);
+    else if(joy.active && !(aiming && dragLen>=26)){ tx = joy.kx/joy.R*MOVE_SPD; ty = joy.ky/joy.R*MOVE_SPD; }  // freeze while drawing a stroke
+    const drawing = aiming && dragLen>=26;
+    const f = drawing ? 1 : 1-Math.exp(-dt*7);   // snap to a halt while drawing so the stroke lands where it was drawn
     player.vx = lerp(player.vx, tx, f);
     player.vy = lerp(player.vy, ty, f);
     player.x = clamp(player.x + player.vx*dt, 18, W-18);
     player.y = clamp(player.y + player.vy*dt, 18, H-18);
-    player.ang = Math.atan2(mouse.y-player.y, mouse.x-player.x);
+    if(isTouch && !aiming){
+      if(Math.hypot(player.vx,player.vy)>20) player.ang = Math.atan2(player.vy, player.vx);
+    } else player.ang = Math.atan2(mouse.y-player.y, mouse.x-player.x);
   }
 
   /* --- stock regen --- */
@@ -1023,7 +1112,7 @@ function update(dtReal){
 
   /* --- spawning --- */
   spawnT -= dt;
-  const interval = Math.max(0.28, 1.25 - elapsed*0.010);
+  const interval = Math.max(0.28, 1.25 - elapsed*0.010) / lerp(0.72, 1, (scrScale-0.55)/0.45);
   if(spawnT<=0){
     spawnT = interval;
     queueSpawn();
@@ -1278,7 +1367,7 @@ function draw(){
         ctx.save(); ctx.translate(tip.x+16+i*13, tip.y-16); ctx.rotate(Math.PI/4);
         ctx.fillRect(-4,-4,8,8); ctx.restore();
       }
-    } else {
+    } else if(!isTouch || aiming){
       ctx.setLineDash([4,9]);
       ctx.strokeStyle = 'rgba(82,242,255,0.28)';
       ctx.lineWidth = 1.5;
@@ -1295,6 +1384,16 @@ function draw(){
   if(state===ST.PLAY || state===ST.PAUSE){
     const blink = invuln>0 && Math.sin(invuln*34)>0.2;
     if(!blink) drawShip(player.x, player.y, player.ang, '#52f2ff', true);
+  }
+
+  /* virtual joystick (touch) */
+  if(isTouch && state===ST.PLAY){
+    const bx = joy.active ? joy.bx : joyHomeX(), by = joy.active ? joy.by : joyHomeY();
+    ctx.strokeStyle = joy.active ? 'rgba(82,242,255,0.55)' : 'rgba(82,242,255,0.18)';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.arc(bx, by, joy.R+10, 0, TAU); ctx.stroke();
+    ctx.fillStyle = joy.active ? 'rgba(82,242,255,0.45)' : 'rgba(82,242,255,0.12)';
+    ctx.beginPath(); ctx.arc(bx + (joy.active?joy.kx:0), by + (joy.active?joy.ky:0), 20, 0, TAU); ctx.fill();
   }
 
   /* particles */
@@ -1326,7 +1425,7 @@ function draw(){
     ctx.rotate(s.rot);
     ctx.scale(sc,sc);
     ctx.globalAlpha = Math.min(1, k*2.2);
-    ctx.font = '800 150px "Hiragino Mincho ProN","Yu Mincho",serif';
+    ctx.font = '800 '+stampPx+'px "Hiragino Mincho ProN","Yu Mincho",serif';
     ctx.textAlign='center'; ctx.textBaseline='middle';
     ctx.shadowColor = '#ffd24d'; ctx.shadowBlur = 40;
     ctx.fillStyle = '#fff';
@@ -1367,8 +1466,14 @@ function drawShip(x,y,ang,col,glow){
   ctx.shadowBlur = 0;
   ctx.restore();
 }
+function joyHomeX(){ return isPortrait() ? W - 88 : 88; }
+function joyHomeY(){ return H - (isPortrait() ? 150 : 108); }
+function inJoyZone(x,y){
+  if(isPortrait()) return x > W*0.60 && y > H*0.52;   // one-handed: thumb lives bottom-right
+  return x < W*0.34 && y > H*0.52;                      // two-handed landscape: left thumb moves, right thumb slashes
+}
 function drawReticle(){
-  if(state!==ST.PLAY) return;
+  if(state!==ST.PLAY || isTouch) return;
   ctx.save();
   ctx.strokeStyle = stocks>0 ? 'rgba(238,240,255,0.85)' : 'rgba(255,45,111,0.8)';
   ctx.lineWidth = 1.5;
@@ -1425,11 +1530,55 @@ cv.addEventListener('mousedown', e=>{
   if(e.button===2) activateSuper();
 });
 window.addEventListener('mouseup', e=>{ if(e.button===0) releaseSlash(); });
-cv.addEventListener('touchstart', e=>{ e.preventDefault(); const t=e.touches[0]; ptrDown(t.clientX,t.clientY); },{passive:false});
-cv.addEventListener('touchmove',  e=>{ e.preventDefault(); const t=e.touches[0]; ptrMove(t.clientX,t.clientY); },{passive:false});
-window.addEventListener('touchend', e=>{ releaseSlash(); },{passive:false});
+function enableTouch(){
+  if(isTouch) return;
+  isTouch = true;
+  BLADE_W = 38;
+  if(document.body) document.body.classList.add('touch');
+  setTouchHint();
+  applyOrientationClass();
+  pauseBtn.classList.toggle('show', state===ST.PLAY);
+}
+function setTouchHint(){
+  hintEl.innerHTML = 'なぞって曲線スラッシュ　／　タップで直線斬撃<br>' +
+    (isPortrait() ? '右下あたりに指を置くと移動スティック' : '左下あたりに指を置くと移動スティック');
+}
+function touchStart(id,x,y){
+  if(state!==ST.PLAY) return;
+  if(!joy.active && inJoyZone(x,y) && slashId!==id){
+    joy.active = true; joy.id = id; joy.bx = x; joy.by = y; joy.kx = 0; joy.ky = 0;
+    return;
+  }
+  if(slashId===null){ slashId = id; ptrDown(x,y); }
+}
+function touchMove(id,x,y){
+  if(joy.active && joy.id===id){
+    let dx=x-joy.bx, dy=y-joy.by; const l=Math.hypot(dx,dy);
+    if(l>joy.R){ dx=dx/l*joy.R; dy=dy/l*joy.R; }
+    joy.kx=dx; joy.ky=dy; return;
+  }
+  if(slashId===id) ptrMove(x,y);
+}
+function touchEnd(id){
+  if(joy.active && joy.id===id){ joy.active=false; joy.id=null; joy.kx=joy.ky=0; return; }
+  if(slashId===id){ slashId=null; releaseSlash(); }
+}
+cv.addEventListener('touchstart', e=>{
+  e.preventDefault(); enableTouch();
+  for(const t of e.changedTouches) touchStart(t.identifier, t.clientX, t.clientY);
+},{passive:false});
+cv.addEventListener('touchmove', e=>{
+  e.preventDefault();
+  for(const t of e.changedTouches) touchMove(t.identifier, t.clientX, t.clientY);
+},{passive:false});
+cv.addEventListener('touchend', e=>{ for(const t of e.changedTouches) touchEnd(t.identifier); },{passive:false});
+cv.addEventListener('touchcancel', e=>{ for(const t of e.changedTouches) touchEnd(t.identifier); },{passive:false});
+try { if(window.matchMedia && window.matchMedia('(pointer: coarse)').matches) enableTouch(); } catch(e){}
+if(typeof document.addEventListener==='function') document.addEventListener('visibilitychange', ()=>{
+  if(document.hidden && state===ST.PLAY) togglePause();
+});
 window.addEventListener('contextmenu', e=>e.preventDefault());
-window.addEventListener('blur', ()=>{ keys.clear(); cancelAim(); });
+window.addEventListener('blur', ()=>{ keys.clear(); cancelAim(); joy.active=false; joy.id=null; slashId=null; });
 
 window.addEventListener('keydown', e=>{
   const k = e.key.toLowerCase();
@@ -1438,20 +1587,25 @@ window.addEventListener('keydown', e=>{
   }
   if(k===' '){ e.preventDefault(); activateSuper(); }
   if(k==='r' && state===ST.OVER) startGame();
-  if(k==='escape' || k==='p'){
-    if(state===ST.END) return;
-    if(state===ST.PLAY){
-      cancelAim();
-      state=ST.PAUSE;
-      document.getElementById('pause-screen').classList.remove('off');
-    } else if(state===ST.PAUSE){
-      state=ST.PLAY;
-      document.getElementById('pause-screen').classList.add('off');
-      last = performance.now();
-    }
-  }
+  if(k==='escape' || k==='p') togglePause();
 });
 window.addEventListener('keyup', e=>keys.delete(e.key.toLowerCase()));
+
+function togglePause(){
+  if(state===ST.PLAY){
+    cancelAim(); joy.active=false; joy.id=null; slashId=null;
+    state=ST.PAUSE;
+    document.getElementById('pause-screen').classList.remove('off');
+    pauseBtn.textContent = '▶';
+  } else if(state===ST.PAUSE){
+    state=ST.PLAY;
+    document.getElementById('pause-screen').classList.add('off');
+    last = performance.now();
+    pauseBtn.textContent = '❚❚';
+  }
+}
+const pauseBtn = document.getElementById('pauseBtn');
+pauseBtn.addEventListener('click', togglePause);
 
 /* ---------- guide (title & pause) ---------- */
 function eicon(type){
@@ -1469,10 +1623,13 @@ const GUIDE_HTML = `
 <h2>遊び方</h2>
 <div class="gsub">HOW TO PLAY</div>
 <h3>操作 — 曲線スラッシュが主力</h3>
-<div class="grow"><div class="eicon" style="font-size:18px">〜</div><div><b>ドラッグ（主力）</b>描いた軌跡どおりに曲線スラッシュ。描いている間は時間が大きく遅くなるので、敵の群れを一筆で巻き込む軌道をじっくり描ける。長さに応じてストックを消費（先端のひし形が消費数）。キルで即回復するので、当て続ける限り描き続けられる。</div></div>
-<div class="grow"><div class="eicon" style="font-size:18px">⊕</div><div><b>クリック</b>カーソル方向へ直線斬撃ダッシュ。距離無制限・無敵。緊急回避や単体への差し込みに。</div></div>
-<div class="grow"><div class="eicon" style="font-size:15px;letter-spacing:0">奥義</div><div><b>無双</b>ゲージ満タンで <span class="kbd">SPACE</span> または右クリック。画面の全敵を自動マーキングし、自動連続スラッシュで<b>装甲を無視して全滅</b>させる。ゲージはキル・装甲ヒット・弾斬り・<b>被弾</b>で溜まる。</div></div>
-<div class="grow"><div class="eicon" style="font-size:14px;letter-spacing:0">移動</div><div><span class="kbd">W</span><span class="kbd">A</span><span class="kbd">S</span><span class="kbd">D</span> または矢印キーで移動。<span class="kbd">Esc</span> ポーズ／<span class="kbd">R</span> 再戦（ゲームオーバー時）。</div></div>
+<div class="grow touch-only"><div class="eicon" style="font-size:18px">〜</div><div><b>なぞる（主力）</b>指でなぞった軌跡どおりに曲線スラッシュ。なぞっている間は時間が大きく遅くなるので、群れを一筆で巻き込む軌道をじっくり描ける。長さに応じてストックを消費（先端のひし形が消費数）。キルで即回復。</div></div>
+<div class="grow touch-only"><div class="eicon" style="font-size:18px">⊕</div><div><b>タップ</b>タップした方向へ直線斬撃ダッシュ。距離無制限・無敵。緊急回避や単体への差し込みに。</div></div>
+<div class="grow touch-only"><div class="eicon" style="font-size:14px;letter-spacing:0">移動</div><div><b>移動スティック</b>縦持ちなら画面右下、横持ちなら画面左下あたりに指を置いて動かすとその方向へ移動（置いた位置が中心になる）。もう一方の指で斬撃。斬撃だけでも遊べる。横画面にも対応、回転してもそのまま続行できる。</div></div>
+<div class="grow pc-only"><div class="eicon" style="font-size:18px">〜</div><div><b>ドラッグ（主力）</b>描いた軌跡どおりに曲線スラッシュ。描いている間は時間が大きく遅くなるので、敵の群れを一筆で巻き込む軌道をじっくり描ける。長さに応じてストックを消費（先端のひし形が消費数）。キルで即回復するので、当て続ける限り描き続けられる。</div></div>
+<div class="grow pc-only"><div class="eicon" style="font-size:18px">⊕</div><div><b>クリック</b>カーソル方向へ直線斬撃ダッシュ。距離無制限・無敵。緊急回避や単体への差し込みに。</div></div>
+<div class="grow"><div class="eicon" style="font-size:15px;letter-spacing:0">奥義</div><div><b>無双</b>ゲージ満タンで <span class="kbd">SPACE</span>・右クリック・画面右下の奥義ボタン。画面の全敵を自動マーキングし、自動連続スラッシュで<b>装甲を無視して全滅</b>させる。ゲージはキル・装甲ヒット・弾斬り・<b>被弾</b>で溜まる。</div></div>
+<div class="grow pc-only"><div class="eicon" style="font-size:14px;letter-spacing:0">移動</div><div><span class="kbd">W</span><span class="kbd">A</span><span class="kbd">S</span><span class="kbd">D</span> または矢印キーで移動。<span class="kbd">Esc</span> ポーズ／<span class="kbd">R</span> 再戦（ゲームオーバー時）。右上の ❚❚ でもポーズ。</div></div>
 <h3>目標</h3>
 <div class="grow"><div class="eicon" style="font-size:15px;color:var(--gold)">十万</div><div><b>100,000点</b>を目指せ。達成後は「ここで終える」か「無限スコアアタック続行」を選べる。コンボ倍率を保ったまま奥義を重ねるのが最短ルート。</div></div>
 <h3>敵図鑑</h3>
@@ -1507,6 +1664,12 @@ function startGame(){
   hudEl.classList.add('on');
   last = performance.now();
   updSuper();
+  joy.active=false; joy.id=null; slashId=null;
+  pauseBtn.textContent = '❚❚';
+  pauseBtn.classList.toggle('show', isTouch);
+  if(isTouch){
+    try { const de=document.documentElement; if(de && de.requestFullscreen && !document.fullscreenElement) de.requestFullscreen().catch(()=>{}); } catch(e){}
+  }
 }
 document.getElementById('startBtn').addEventListener('click', startGame);
 document.getElementById('retryBtn').addEventListener('click', startGame);
@@ -1515,6 +1678,7 @@ document.getElementById('contBtn').addEventListener('click', ()=>{
   document.getElementById('clear-screen').classList.add('off');
   goalEl.textContent = 'ENDLESS ∞';
   hudEl.classList.add('on');
+  pauseBtn.classList.toggle('show', isTouch);
   state = ST.PLAY;
   last = performance.now();
   updSuper();
